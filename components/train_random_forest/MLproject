@@ -1,0 +1,34 @@
+name: train_random_forest
+conda_env: conda.yml
+
+entry_points:
+  main:
+    parameters:
+
+      train_artifact:
+        description: ## ADD DESCRIPTION
+        type: string
+
+       val_size:
+        description: ## ADD DESCRIPTION
+        type: string
+
+       random_state:
+        description: ## ADD DESCRIPTION
+        type: string
+
+       stratify:
+        description: ## ADD DESCRIPTION
+        type: string
+
+       rf_config:
+        description: ## ADD DESCRIPTION
+        type: string
+
+       output_artifact:
+        description: ## ADD DESCRIPTION
+        type: string
+
+
+    command: >-
+        python run.py  --train_artifact {train_artifact}  -- val_size { val_size}  -- random_state { random_state}  -- stratify { stratify}  -- rf_config { rf_config}  -- output_artifact { output_artifact} 
