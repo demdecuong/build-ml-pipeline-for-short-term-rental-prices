@@ -146,19 +146,14 @@ dependencies:
 ```
 
 ### Clone the project
-Go to [nyc_airbnb_dev repository](https://github.com/demdecuong/nyc_airbnb_dev)
+Go to [nyc_airbnb_dev repository](https://github.com/demdecuong/)
 and click on `Fork` in the upper right corner. This will create a fork in your Github account, i.e., a copy of the
 repository that is under your control. Now clone the repository locally so you can start working on it:
 
 ```
-git clone https://github.com/[your_github_username]/nyc_airbnb_dev.git
+git clone https://github.com/[your_github_username]/build-ml-pipeline-for-short-term-rental-prices.git
 ```
 
-and go into the repository:
-
-```
-cd nyc_airbnb_dev
-```
 Commit and push to the repository often while you make progress towards the solution. Remember 
 to add meaningful commit messages.
 
@@ -271,7 +266,7 @@ modeling -> random_forest -> n_estimators to 10 and etl->min_price to 50:
 We can directly use the existing pipeline to do the training process without the need to fork the repository. All it takes to do that is to conda environment with MLflow and wandb already installed and configured. To do so, all we have to do is run the following command:
 
 ```bash
-mlflow run -v [pipeline_version] https://github.com/demdecuong/nyc_airbnb_dev.git
+mlflow run -v [pipeline_version] https://github.com/demdecuong/build-ml-pipeline-for-short-term-rental-prices.git
 ```
 
 `[pipeline_version]` is a release version of the pipeline. For example this repository has currently been released for version `1.0.3`. So we need to input `1.0.3` in place of `[pipeline_version]`.
@@ -280,7 +275,7 @@ Suppose we want to change the training random forest parameters can also be done
 
 ```bash
 mlflow run -v 1.0.3 \
-  https://github.com/demdecuong/nyc_airbnb_dev.git \
+  https://github.com/demdecuong/build-ml-pipeline-for-short-term-rental-prices.git \
   -P steps=train_random_forest \
   -P hydra_options="modeling.random_forest.max_depth=10 modeling.random_forest.n_estimators=100 -m"
 ```
