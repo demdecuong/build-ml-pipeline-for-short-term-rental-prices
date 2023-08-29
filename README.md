@@ -1,57 +1,170 @@
 # Build an ML Pipeline for Short-Term Rental Prices in NYC
+
+- Project **Build an ML Pipeline for Short-Term Rental Prices in NYC** Churn of ML DevOps Engineer Nanodegree Udacity
+
+> W&B Project : https://wandb.ai/mohrosidi/nyc_airbnb/overview?workspace=user-mohrosidi
+
 You are working for a property management company renting rooms and properties for short periods of 
 time on various rental platforms. You need to estimate the typical price for a given property based 
 on the price of similar properties. Your company receives new data in bulk every week. The model needs 
 to be retrained with the same cadence, necessitating an end-to-end pipeline that can be reused.
 
-In this project you will build such a pipeline.
+For this project, we will build ML Pipeline to perform a number of processes< such as: downloading the required datasets, doing basic celaning, checking based on assumptions on data, training, and testing. The pipeline built for this project is very simple and allows it to be upgraded in the future.
+
+![ML Pipeline](images/ml_pipeline.PNG)
 
 ## Table of contents
 
 - [Introduction](#build-an-ML-Pipeline-for-Short-Term-Rental-Prices-in-NYC)
-- [Preliminary steps](#preliminary-steps)
-  * [Fork the Starter Kit](#fork-the-starter-kit)
+- [Repository structure](#repository-structure)
+- [How to use it](#how-to-use-it)
+  * [Dependency](#dependency)
+  * [Clone the project](#clone-the-project)
   * [Create environment](#create-environment)
   * [Get API key for Weights and Biases](#get-api-key-for-weights-and-biases)
   * [Cookie cutter](#cookie-cutter)
   * [The configuration](#the-configuration)
   * [Running the entire pipeline or just a selection of steps](#Running-the-entire-pipeline-or-just-a-selection-of-steps)
-  * [Pre-existing components](#pre-existing-components)
-- [Instructions](#instructions)
-  * [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
-  * [Data cleaning](#data-cleaning)
-  * [Data testing](#data-testing)
-  * [Data splitting](#data-splitting)
-  * [Train Random Forest](#train-random-forest)
-  * [Optimize hyperparameters](#optimize-hyperparameters)
-  * [Select the best model](#select-the-best-model)
-  * [Test](#test)
-  * [Visualize the pipeline](#visualize-the-pipeline)
-  * [Release the pipeline](#release-the-pipeline)
-  * [Train the model on a new data sample](#train-the-model-on-a-new-data-sample)
-- [Cleaning up](#cleaning-up)
+  * [Run existing pipeline](#run-existing-pipeline)
+- [In case of errors](#in-case-of-errors)
+- [Deploy your model](#deploy-your-model)
+- [Development plans](#development-plans)
 
-## Preliminary steps
-### Fork the Starter kit
-Go to [https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices.git](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices.git)
+## Repository structure
+
+The repository contains a number of modules that are then executed using MLFlow. The modules are stored in two folders, namely: `components` and `src`. 
+
+The components folder contains modules for downloading data, testing regression models, and data segregation. The src folder contains modules for basic celaning, data check, EDA, and random forest training. Each module will be equipped with two files, namely: `conda.yml` for conda environment configuration and `MLproject` for module MLflow configuration. 
+
+The main.py file will combine all of these modules into a training and testing pipeline. The logging process for each step is done using W&B. The parameters used for each module are saved into the config.yaml file. The file contains configurations for basic cleaning to training random forest.
+
+>
+NOTE: Each module needs to be set with the conda.yaml and MLproject files
+
+```
+.
+├── LICENSE
+├── LICENSE.txt
+├── MLproject
+├── README.md
+├── components
+│   ├── README.md
+│   ├── conda.yml
+│   ├── get_data
+│   │   ├── MLproject
+│   │   ├── conda.yml
+│   │   ├── data
+│   │   │   ├── sample1.csv
+│   │   │   └── sample2.csv
+│   │   └── run.py
+│   ├── setup.py
+│   ├── test_regression_model
+│   │   ├── MLproject
+│   │   ├── conda.yml
+│   │   └── run.py
+│   └── train_val_test_split
+│       ├── MLproject
+│       ├── conda.yml
+│       └── run.py
+├── conda.yml
+├── config.yaml
+├── cookie-mlflow-step
+│   ├── README.md
+│   ├── cookiecutter.json
+│   └── {{cookiecutter.step_name}}
+│       ├── MLproject
+│       ├── conda.yml
+│       └── {{cookiecutter.script_name}}
+├── environment.yml
+|
+|...
+|
+├── main.py
+|
+|...
+|
+└── src
+    ├── basic_cleaning
+    │   ├── MLproject
+    │   ├── artifacts
+    │   │   └── sample.csv:v0
+    │   │       └── sample1.csv
+    │   ├── conda.yml
+    │   └── run.py
+    ├── data_check
+    │   ├── MLproject
+    │   ├── __pycache__
+    │   │   ├── conftest.cpython-39-pytest-6.2.2.pyc
+    │   │   └── test_data.cpython-39-pytest-6.2.2.pyc
+    │   ├── artifacts
+    │   │   ├── clean_sample.csv:v0
+    │   │   │   └── clean_sample.csv
+    │   │   └── clean_sample.csv:v1
+    │   │       └── clean_sample.csv
+    │   ├── conda.yml
+    │   ├── conftest.py
+    │   └── test_data.py
+    ├── eda
+    │   ├── EDA.ipynb
+    │   ├── MLproject
+    │   ├── artifacts
+    │   │   └── sample.csv:v0
+    │   │       └── sample1.csv
+    │   └── conda.yml
+    └── train_random_forest
+        ├── MLproject
+        ├── artifacts
+        │   ├── trainval_data.csv:v0
+        │   │   └── tmp9cq0zk5j
+        │   └── trainval_data.csv:v1
+        │       └── tmpu7lq_jd4
+        ├── conda.yml
+        ├── feature_engineering.py
+        └── run.py
+```
+
+## How to use it
+
+In this section, we will discuss how to modify a project or run an existing pipeline.
+
+### Dependency
+
+```
+dependencies:
+  - mlflow=1.14.1
+  - ipython=7.21.0
+  - notebook=6.2.0
+  - jupyterlab=3.0.10
+  - cookiecutter=1.7.2
+  - hydra-core=1.0.6
+  - matplotlib=3.3.4
+  - pandas=1.2.3
+  - git=2.30.2
+  - pip=20.3.3
+  - pip:
+      - wandb==0.10.31
+```
+
+### Clone the project
+Go to [nyc_airbnb_dev repository](https://github.com/demdecuong/nyc_airbnb_dev)
 and click on `Fork` in the upper right corner. This will create a fork in your Github account, i.e., a copy of the
 repository that is under your control. Now clone the repository locally so you can start working on it:
 
 ```
-git clone https://github.com/[your github username]/build-ml-pipeline-for-short-term-rental-prices.git
+git clone https://github.com/[your_github_username]/nyc_airbnb_dev.git
 ```
 
 and go into the repository:
 
 ```
-cd build-ml-pipeline-for-short-term-rental-prices
+cd nyc_airbnb_dev
 ```
 Commit and push to the repository often while you make progress towards the solution. Remember 
 to add meaningful commit messages.
 
 ### Create environment
 Make sure to have conda installed and ready, then create a new environment using the ``environment.yml``
-file provided in the root of the repository and activate it:
+file provided in the root of the repository and activate it. This file contain list of module needed to run the project:
 
 ```bash
 > conda env create -f environment.yml
@@ -74,8 +187,7 @@ wandb: Appending key for api.wandb.ai to your netrc file: /home/[your username]/
 
 ### Cookie cutter
 In order to make your job a little easier, you are provided a cookie cutter template that you can use to create 
-stubs for new pipeline components. It is not required that you use this, but it might save you from a bit of 
-boilerplate code. Just run the cookiecutter and enter the required information, and a new component 
+stubs for new pipeline components (ex: add processing pipeline). Run the cookiecutter and enter the required information, and a new component 
 will be created including the `conda.yml` file, the `MLproject` file as well as the script. You can then modify these
 as needed, instead of starting from scratch.
 For example:
@@ -109,8 +221,9 @@ The script ``run.py`` will receive the input parameters ``parameter1``, ``parame
 ```
 
 ### The configuration
-As usual, the parameters controlling the pipeline are defined in the ``config.yaml`` file defined in
-the root of the starter kit. We will use Hydra to manage this configuration file. 
+The parameters controlling the pipeline are defined in the ``config.yaml`` file defined in
+the root of the repository. We will use Hydra to manage this configuration file. 
+
 Open this file and get familiar with its content. Remember: this file is only read by the ``main.py`` script 
 (i.e., the pipeline) and its content is
 available with the ``go`` function in ``main.py`` as the ``config`` dictionary. For example,
@@ -118,29 +231,31 @@ the name of the project is contained in the ``project_name`` key under the ``mai
 the configuration file. It can be accessed from the ``go`` function as 
 ``config["main"]["project_name"]``.
 
-NOTE: do NOT hardcode any parameter when writing the pipeline. All the parameters should be 
+>NOTE: do NOT hardcode any parameter when writing the pipeline. All the parameters should be 
 accessed from the configuration file.
 
 ### Running the entire pipeline or just a selection of steps
-In order to run the pipeline when you are developing, you need to be in the root of the starter kit, 
-then you can execute as usual:
+In order to run the pipeline when you are developing, you need to be in the root of the repository, 
+then you can execute this command:
 
 ```bash
 >  mlflow run .
 ```
 This will run the entire pipeline.
 
-When developing it is useful to be able to run one step at the time. Say you want to run only
-the ``download`` step. The `main.py` is written so that the steps are defined at the top of the file, in the 
-``_steps`` list, and can be selected by using the `steps` parameter on the command line:
+If you want to run a certain steps you can use the examples of command bellow:
 
 ```bash
 > mlflow run . -P steps=download
 ```
-If you want to run the ``download`` and the ``basic_cleaning`` steps, you can similarly do:
+This is useful for testing whether steps that have been added or developed can be performed or not.
+
+If you want to run multiple steps (ex:  ``download`` and the ``basic_cleaning`` steps), you can similarly do:
 ```bash
 > mlflow run . -P steps=download,basic_cleaning
 ```
+> NOTE: Make sure the previous artifact step is available in W&B. Otherwise we recommend running each step in order.
+
 You can override any other parameter in the configuration file using the Hydra syntax, by
 providing it as a ``hydra_options`` parameter. For example, say that we want to set the parameter
 modeling -> random_forest -> n_estimators to 10 and etl->min_price to 50:
@@ -151,29 +266,28 @@ modeling -> random_forest -> n_estimators to 10 and etl->min_price to 50:
   -P hydra_options="modeling.random_forest.n_estimators=10 etl.min_price=50"
 ```
 
-### Pre-existing components
-In order to simulate a real-world situation, we are providing you with some pre-implemented
-re-usable components. While you have a copy in your fork, you will be using them from the original
-repository by accessing them through their GitHub link, like:
+### Run existing pipeline
 
-```python
-_ = mlflow.run(
-                f"{config['main']['components_repository']}/get_data",
-                "main",
-                parameters={
-                    "sample": config["etl"]["sample"],
-                    "artifact_name": "sample.csv",
-                    "artifact_type": "raw_data",
-                    "artifact_description": "Raw file as downloaded"
-                },
-            )
+We can directly use the existing pipeline to do the training process without the need to fork the repository. All it takes to do that is to conda environment with MLflow and wandb already installed and configured. To do so, all we have to do is run the following command:
+
+```bash
+mlflow run -v [pipeline_version] https://github.com/demdecuong/nyc_airbnb_dev.git
 ```
-where `config['main']['components_repository']` is set to 
-[https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices#components](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices/tree/main/components).
-You can see the parameters that they require by looking into their `MLproject` file:
 
-- `get_data`: downloads the data. [MLproject](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices/blob/main/components/get_data/MLproject)
-- `train_val_test_split`: segrgate the data (splits the data) [MLproject](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices/blob/main/components/train_val_test_split/MLproject)
+`[pipeline_version]` is a release version of the pipeline. For example this repository has currently been released for version `1.0.3`. So we need to input `1.0.3` in place of `[pipeline_version]`.
+
+Suppose we want to change the training random forest parameters can also be done by rewriting the configuration parameters using hydra.
+
+```bash
+mlflow run -v 1.0.3 \
+  https://github.com/demdecuong/nyc_airbnb_dev.git \
+  -P steps=train_random_forest \
+  -P hydra_options="modeling.random_forest.max_depth=10 modeling.random_forest.n_estimators=100 -m"
+```
+
+We have successfully run the pipeline, we can see that in the W&B account there is a new project with the name 'nyc_airbnb_dev'. Step running pipelines can be seen in the artifact section of Graph View.
+
+![Pipeline](images/run_wandb.PNG)
 
 ## In case of errors
 When you make an error writing your `conda.yml` file, you might end up with an environment for the pipeline or one
@@ -196,374 +310,68 @@ If you are ok with that list, execute this command to clean them up:
 
 This will iterate over all the environments created by `mlflow` and remove them.
 
+## Deploy your model
+Suppose we have new data and want to use our model to make predictions on the speed data. There are three ways to do this that will be described in this section.
 
-## Instructions
+Let's consider batch processing first. MLflow allows you to use any artifact exported with MLflow for batch processing.
 
-The pipeline is defined in the ``main.py`` file in the root of the starter kit. The file already
-contains some boilerplate code as well as the download step. Your task will be to develop the
-needed additional step, and then add them to the ``main.py`` file.
+### Offiline inference
 
-__*NOTE*__: the modeling in this exercise should be considered a baseline. We kept the data cleaning and the modeling 
-simple because we want to focus on the MLops aspect of the analysis. It is possible with a little more effort to get
-a significantly-better model for this dataset.
-
-### Exploratory Data Analysis (EDA)
-The scope of this section is to get an idea of how the process of an EDA works in the context of
-pipelines, during the data exploration phase. In a real scenario you would spend a lot more time
-in this phase, but here we are going to do the bare minimum.
-
-NOTE: remember to add some markdown cells explaining what you are about to do, so that the
-notebook can be understood by other people like your colleagues
-
-1. The ``main.py`` script already comes with the download step implemented. Run the pipeline to 
-   get a sample of the data. The pipeline will also upload it to Weights & Biases:
-   
-  ```bash
-  > mlflow run . -P steps=download
-  ```
-  
-  You will see a message similar to:
-
-  ```
-  2021-03-12 15:44:39,840 Uploading sample.csv to Weights & Biases
-  ```
-  This tells you that the data is going to be stored in W&B as the artifact named ``sample.csv``.
-
-2. Now execute the `eda` step:
-   ```bash
-   > mlflow run src/eda
-   ```
-   This will install Jupyter and all the dependencies for `pandas-profiling`, and open a Jupyter notebook instance.
-   Click on New -> Python 3 and create a new notebook. Rename it `EDA` by clicking on `Untitled` at the top, beside the
-   Jupyter logo.
-3. Within the notebook, fetch the artifact we just created (``sample.csv``) from W&B and read 
-   it with pandas:
-    
-    ```python
-    import wandb
-    import pandas as pd
-    
-    run = wandb.init(project="nyc_airbnb", group="eda", save_code=True)
-    local_path = wandb.use_artifact("sample.csv:latest").file()
-    df = pd.read_csv(local_path)
-    ```
-    Note that we use ``save_code=True`` in the call to ``wandb.init`` so the notebook is uploaded and versioned
-    by W&B.
-
-4. Using `pandas-profiling`, create a profile:
-   ```python
-   import pandas_profiling
-   
-   profile = pandas_profiling.ProfileReport(df)
-   profile.to_widgets()
-   ```
-   what do you notice? Look around and see what you can find. 
-   
-   For example, there are missing values in a few columns and the column `last_review` is a 
-   date but it is in string format. Look also at the `price` column, and note the outliers. There are some zeros and 
-   some very high prices. After talking to your stakeholders, you decide to consider from a minimum of $ 10 to a 
-   maximum of $ 350 per night.
-   
-5. Fix some of the little problems we have found in the data with the following code:
-    
-   ```python
-   # Drop outliers
-   min_price = 10
-   max_price = 350
-   idx = df['price'].between(min_price, max_price)
-   df = df[idx].copy()
-   # Convert last_review to datetime
-   df['last_review'] = pd.to_datetime(df['last_review'])
-   ```
-   Note how we did not impute missing values. We will do that in the inference pipeline, so we will be able to handle
-   missing values also in production.
-6. Create a new profile or check with ``df.info()`` that all obvious problems have been solved
-7. Terminate the run by running `run.finish()`
-8. Save the notebook, then close it (File -> Close and Halt). In the main Jupyter notebook page, click Quit in the
-   upper right to stop Jupyter. This will also terminate the mlflow run. DO NOT USE CRTL-C
-
-## Data cleaning
-
-Now we transfer the data processing we have done as part of the EDA to a new ``basic_cleaning`` 
-step that starts from the ``sample.csv`` artifact and create a new artifact ``clean_sample.csv`` 
-with the cleaned data:
-
-1. Make sure you are in the root directory of the starter kit, then create a stub 
-   for the new step. The new step should accept the parameters ``input_artifact`` 
-   (the input artifact), ``output_artifact`` (the name for the output artifact), 
-   ``output_type`` (the type for the output artifact), ``output_description`` 
-   (a description for the output artifact), ``min_price`` (the minimum price to consider)
-   and ``max_price`` (the maximum price to consider):
-   
-   ```bash
-   > cookiecutter cookie-mlflow-step -o src
-   step_name [step_name]: basic_cleaning
-   script_name [run.py]: run.py
-   job_type [my_step]: basic_cleaning
-   short_description [My step]: A very basic data cleaning
-   long_description [An example of a step using MLflow and Weights & Biases]: Download from W&B the raw dataset and apply some basic data cleaning, exporting the result to a new artifact
-   parameters [parameter1,parameter2]: input_artifact,output_artifact,output_type,output_description,min_price,max_price
-   ```
-   This will create a directory ``src/basic_cleaning`` containing the basic files required 
-   for a MLflow step: ``conda.yml``, ``MLproject`` and the script (which we named ``run.py``).
-   
-2. Modify the ``src/basic_cleaning/run.py`` script and the ML project script by filling the 
-   missing information about parameters (note the 
-   comments like ``INSERT TYPE HERE`` and ``INSERT DESCRIPTION HERE``). All parameters should be
-   of type ``str`` except ``min_price`` and ``max_price`` that should be ``float``.
-   
-3. Implement in the section marked ```# YOUR CODE HERE     #``` the steps we 
-   have implemented in the notebook, including downloading the data from W&B. 
-   Remember to use the ``logger`` instance already provided to print meaningful messages to screen. 
-   
-   Make sure to use ``args.min_price`` and ``args.max_price`` when dropping the outliers 
-   (instead of  hard-coding the values like we did in the notebook).
-   Save the results to a CSV file called ``clean_sample.csv`` 
-   (``df.to_csv("clean_sample.csv", index=False)``)
-   **_NOTE_**: Remember to use ``index=False`` when saving to CSV, otherwise the data checks in
-               the next step might fail because there will be an extra ``index`` column
-   
-   Then upload it to W&B using:
-   
-   ```python
-   artifact = wandb.Artifact(
-        args.output_artifact,
-        type=args.output_type,
-        description=args.output_description,
-    )
-    artifact.add_file("clean_sample.csv")
-    run.log_artifact(artifact)
-   ```
-   
-   **_REMEMBER__**: Whenever you are using a library (like pandas), you MUST add it as 
-                    dependency in the ``conda.yml`` file. For example, here we are using pandas 
-                    so we must add it to ``conda.yml`` file, including a version:
-   ```yaml
-   dependencies:
-     - pip=20.3.3
-     - pandas=1.2.3
-     - pip:
-         - wandb==0.10.31
-   ```
-   
-4. Add the ``basic_cleaning`` step to the pipeline (the ``main.py`` file):
-
-   **_WARNING:_**: please note how the path to the step is constructed: 
-                   ``os.path.join(hydra.utils.get_original_cwd(), "src", "basic_cleaning")``.
-   This is necessary because Hydra executes the script in a different directory than the root
-   of the starter kit. You will have to do the same for every step you are going to add to the 
-   pipeline.
-   
-   **_NOTE_**: Remember that when you refer to an artifact stored on W&B, you MUST specify a 
-               version or a tag. For example, here the ``input_artifact`` should be 
-               ``sample.csv:latest`` and NOT just ``sample.csv``. If you forget to do this, 
-               you will see a message like
-               ``Attempted to fetch artifact without alias (e.g. "<artifact_name>:v3" or "<artifact_name>:latest")``
-
-   ```python
-   if "basic_cleaning" in active_steps:
-       _ = mlflow.run(
-            os.path.join(hydra.utils.get_original_cwd(), "src", "basic_cleaning"),
-            "main",
-            parameters={
-                "input_artifact": "sample.csv:latest",
-                "output_artifact": "clean_sample.csv",
-                "output_type": "clean_sample",
-                "output_description": "Data with outliers and null values removed",
-                "min_price": config['etl']['min_price'],
-                "max_price": config['etl']['max_price']
-            },
-        )
-   ```
-5. Run the pipeline. If you go to W&B, you will see the new artifact type `clean_sample` and within it the 
-   `clean_sample.csv` artifact
-
-### Data testing
-After the cleaning, it is a good practice to put some tests that verify that the data does not
-contain surprises. 
-
-One of our tests will compare the distribution of the current data sample with a reference, 
-to ensure that there is no unexpected change. Therefore, we first need to define a 
-"reference dataset". We will just tag the latest ``clean_sample.csv`` artifact on W&B as our 
-reference dataset. Go with your browser to ``wandb.ai``, navigate to your `nyc_airbnb` project, then to the
-artifact tab. Click on "clean_sample", then on the version with the ``latest`` tag. This is the
-last one we produced in the previous step. Add a tag ``reference`` to it by clicking the "+"
-in the Aliases section on the right:
-
-![reference tag](images/wandb-tag-data-test.png "adding a reference tag")
- 
-Now we are ready to add some tests. In the starter kit you can find a ``data_tests`` step
-that you need to complete. Let's start by appending to 
-``src/data_check/test_data.py`` the following test:
-  
-```python
-def test_row_count(data):
-    assert 15000 < data.shape[0] < 1000000
-```
-which checks that the size of the dataset is reasonable (not too small, not too large).
-
-Then, add another test ``test_price_range(data, min_price, max_price)`` that checks that 
-the price range is between ``min_price`` and ``max_price`` 
-(hint: you can use the ``data['price'].between(...)`` method). Also, remember that we are using closures, so the
-name of the variables that your test takes in MUST BE exactly `data`, `min_price` and `max_price`.
-
-Now add the `data_check` component to the main file, so that it gets executed as part of our
-pipeline. Use ``clean_sample.csv:latest`` as ``csv`` and ``clean_sample.csv:reference`` as 
-``ref``. Right now they point to the same file, but later on they will not: we will fetch another sample of data
-and therefore the `latest` tag will point to that. 
-Also, use the configuration for the other parameters. For example, 
-use ``config["data_check"]["kl_threshold"]`` for the ``kl_threshold`` parameter. 
-
-Then run the pipeline and make sure the tests are executed and that they pass. Remember that you can run just this
-step with:
+For example, let's fetch an inference artifact from one of the previous exercises using wandb:
 
 ```bash
-> mlflow run . -P steps="data_check"
+wandb artifact get nyc_airbnb/random_forest_export:prod --root model
 ```
-
-You can safely ignore the following DeprecationWarning if you see it:
-
-```
-DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' 
-is deprecated since Python 3.3, and in 3.10 it will stop working
-```
-
-### Data splitting
-Use the provided component called ``train_val_test_split`` to extract and segregate the test set. 
-Add it to the pipeline then run the pipeline. As usual, use the configuration for the parameters like `test_size`,
-`random_seed` and `stratify_by`. Look at the `modeling` section in the config file.
-
-**_HINT_**: The path to the step can
-be expressed as ``mlflow.run(f"{config['main']['components_repository']}/train_val_test_split", ...)``.
-
-You can see the parameters accepted by this step [here](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices/blob/main/components/train_val_test_split/MLproject)
-
-After you execute, you will see something like:
-
-```
-2021-03-15 01:36:44,818 Uploading trainval_data.csv dataset
-2021-03-15 01:36:47,958 Uploading test_data.csv dataset
-```
-in the log. This tells you that the script is uploading 2 new datasets: ``trainval_data.csv`` and ``test_data.csv``.
-
-### Train Random Forest
-Complete the script ``src/train_random_forest/run.py``. All the places where you need to insert code are marked by
-a `# YOUR CODE HERE` comment and are delimited by two signs like `######################################`. You can
-find further instructions in the file.
-
-Once you are done, add the step to ``main.py``. Use the name ``random_forest_export`` as ``output_artifact``.
-
-**_NOTE_**: the main.py file already provides a variable ``rf_config`` to be passed as the
-            ``rf_config`` parameter.
-
-### Optimize hyperparameters
-Re-run the entire pipeline varying the hyperparameters of the Random Forest model. This can be
-accomplished easily by exploiting the Hydra configuration system. Use the multi-run feature (adding the `-m` option 
-at the end of the `hydra_options` specification), and try setting the parameter `modeling.max_tfidf_features` to 10, 15
-and 30, and the `modeling.random_forest.max_features` to 0.1, 0.33, 0.5, 0.75, 1.
-
-HINT: if you don't remember the hydra syntax, you can take inspiration from this is example, where we vary 
-two other parameters (this is NOT the solution to this step):
-```bash
-> mlflow run . \
-  -P steps=train_random_forest \
-  -P hydra_options="modeling.random_forest.max_depth=10,50,100 modeling.random_forest.n_estimators=100,200,500 -m"
-```
-you can change this command line to accomplish your task.
-
-While running this simple experimentation is enough to complete this project, you can also explore more and see if 
-you can improve the performance. You can also look at the Hydra documentation for even more ways to do hyperparameters 
-optimization. Hydra is very powerful, and allows even to use things like Bayesian optimization without any change
-to the pipeline itself.
-
-### Select the best model
-Go to W&B and select the best performing model. We are going to consider the Mean Absolute Error as our target metric,
-so we are going to choose the model with the lowest MAE.
-
-![wandb](images/wandb_select_best.gif "wandb")
-
-**_HINT_**: you should switch to the Table view (second icon on the left), then click on the upper
-            right on "columns", remove all selected columns by clicking on "Hide all", then click
-            on the left list on "ID", "Job Type", "max_depth", "n_estimators", "mae" and "r2".
-            Click on "Close". Now in the table view you can click on the "mae" column
-            on the three little dots, then select "Sort asc". This will sort the runs by ascending
-            Mean Absolute Error (best result at the top).
-
-When you have found the best job, click on its name. If you are interested you can explore some of the things we
-tracked, for example the feature importance plot. You should see that the `name` feature has quite a bit of importance
-(depending on your exact choice of parameters it might be the most important feature or close to that). The `name`
-column contains the title of the post on the rental website. Our pipeline performs a very primitive NLP analysis 
-based on [TF-IDF](https://monkeylearn.com/blog/what-is-tf-idf/) (term frequency-inverse document frequency) and can 
-extract a good amount of information from the feature.
-
-Go to the artifact section of the selected job, and select the 
-`model_export` output artifact.  Add a ``prod`` tag to it to mark it as 
-"production ready".
-
-### Test
-Use the provided step ``test_regression_model`` to test your production model against the
-test set. Implement the call to this component in the `main.py` file. As usual you can see the parameters in the
-corresponding [MLproject](https://github.com/udacity/build-ml-pipeline-for-short-term-rental-prices/blob/main/components/test_regression_model/MLproject) 
-file. Use the artifact `random_forest_export:prod` for the parameter `mlflow_model` and the test artifact
-`test_data.csv:latest` as `test_artifact`.
-
-**NOTE**: This step is NOT run by default when you run the pipeline. In fact, it needs the manual step
-of promoting a model to ``prod`` before it can complete successfully. Therefore, you have to
-activate it explicitly on the command line:
+The `--root` option sets the directory where wandb will save the artifact. So after this command we have our MLflow model in the model directory. We can now use it for batch processing by using mlflow models predict:
 
 ```bash
-> mlflow run . -P steps=test_regression_model
+mlflow models predict -t json -i model/input_example.json -m model
 ```
+where input.csv is a file containing a batch of requests, -t indicates the format of the file (csv in this case), and -m model specifies the directory containing the model.
 
-### Visualize the pipeline
-You can now go to W&B, go the Artifacts section, select the model export artifact then click on the
-``Graph view`` tab. You will see a representation of your pipeline.
+You can also use your own data in this case.
 
-### Release the pipeline
-First copy the best hyper parameters you found in your ``configuration.yml`` so they become the
-default values. Then, go to your repository on GitHub and make a release. 
-If you need a refresher, here are some [instructions](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release)
-on how to release on GitHub.
+### Online inference
 
-Call the release ``1.0.0``:
+We can serve a model for online inference by using` mlflow models serve` (we assume we already have our inference artifact in the `model` directory):
 
-![tag the release](images/tag-release-github.png "tag the release")
-
-If you find problems in the release, fix them and then make a new release like ``1.0.1``, ``1.0.2``
-and so on.
-
-### Train the model on a new data sample
-
-Let's now test that we can run the release using ``mlflow`` without any other pre-requisite. We will
-train the model on a new sample of data that our company received (``sample2.csv``):
-
-(be ready for a surprise, keep reading even if the command fails)
 ```bash
-> mlflow run https://github.com/[your github username]/build-ml-pipeline-for-short-term-rental-prices.git \
-             -v [the version you want to use, like 1.0.0] \
-             -P hydra_options="etl.sample='sample2.csv'"
+mlflow models serve -m model &
 ```
 
-**_NOTE_**: the file ``sample2.csv`` contains more data than ``sample1.csv`` so the training will
-            be a little slower.
-
-But, wait! It failed! The test ``test_proper_boundaries`` failed, apparently there is one point
-which is outside of the boundaries. This is an example of a "successful failure", i.e., a test that
-did its job and caught an unexpected event in the pipeline (in this case, in the data).
-
-You can fix this by adding these two lines in the ``basic_cleaning`` step just before saving the output 
-to the csv file with `df.to_csv`:
+Mlflow will create a REST API for us that we can interrogate by sending requests to the endpoint (which by default is `http://localhost:5000/invocations`). For example, we can do this from python like this:
 
 ```python
-idx = df['longitude'].between(-74.25, -73.50) & df['latitude'].between(40.5, 41.2)
-df = df[idx].copy()
+import requests
+import json
+
+with open("data_sample.json") as fp:
+    data = json.load(fp)
+
+results = requests.post("http://localhost:5000/invocations", json=data)
+
+print(results.json())
+````
+
+### Docker deployment
+
+You can also use docker to build an image and then deploy to a Cloud provider (AWS, GCP, Azure...). Expose port 5000 of that machine to the world, and you will be able to use your model from whenever as a simple API call.
+
+1. Create the docker image:
+```bash
+mlflow models build-docker -m model -n "nyc_airbnb_model"
 ```
-This will drop rows in the dataset that are not in the proper geolocation. 
+This will take a few minutes (of course, you need docker installed)
 
-Then commit your change, make a new release (for example ``1.0.1``) and retry (of course you need to use 
-``-v 1.0.1`` when calling mlflow this time). Now the run should succeed and voit la', 
-you have trained your new model on the new data.
+2. Follow the procedure for your Cloud provider of choice to deploy a Docker image
+3. Open port 5000 on the machine hosting the image
+4. Use requests to interrogate that machine, by using the snippet we used earlier and substituting `http://localhost:5000/invocations` with `[url to the deployed machine]:5000/invocations`
 
-## License
+## Development plans
 
-[License](LICENSE.txt)
+This project is not perfect. Development remains to be done. There are a few things to try in the future.
+
+- Try another algorithm (ex: deep learning)
+- Training using AutoML (ex:H2O and pycaret)
+
+Discussions and feedback we highly expect from users and readers

@@ -14,12 +14,20 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
 logger = logging.getLogger()
 
 
-def go(args):
+def get_data(args):
+    """
+    Function to download the data from repository
+
+    argument:
+        args: command line argument for logging and download
+            specification
+    """
+
     run = wandb.init(job_type="download_file")
     run.config.update(args)
 
-    logger.info(f"Returning sample {args.sample}")
-    logger.info(f"Uploading {args.artifact_name} to Weights & Biases")
+    logger.info("Returning sample %s", args.sample)
+    logger.info("Uploading %s to Weights & Biases",args.artifact_name)
     log_artifact(
         args.artifact_name,
         args.artifact_type,
@@ -44,4 +52,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    go(args)
+    get_data(args)
