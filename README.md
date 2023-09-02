@@ -8,12 +8,12 @@ In this project we will build such a pipeline.
 
 ### Project Links
 ```
-Weights & Biases project link: https://wandb.ai/pavaso-poc/nyc_airbnb?workspace=user-demdecuong
+Weights & Biases project link: https://wandb.ai/demdecuong/nyc_airbnb/
 Github repository link: https://github.com/demdecuong/build-ml-pipeline-for-short-term-rental-prices/
 ```
 
 ### Error & Solution
-If you meet error about mlflow or hydra
+If you meet errors about mlflow or hydra
 ```
 export $(cat .env_copy)
 ```
