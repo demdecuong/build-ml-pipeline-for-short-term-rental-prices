@@ -10,7 +10,7 @@ entry_points:
         type: string
 
       output_artifact:
-        description: Fully qualified name for the artifact
+        description: Name for the W&B artifact that will be created
         type: string
 
       output_type:
@@ -22,11 +22,11 @@ entry_points:
         type: string
 
       min_price:
-        description: Minimum value for price
+        description: Minimum price for cleaning outliers
         type: float
 
       max_price:
-        description: Maximum value for price
+        description: Maximum price for cleaning outliers
         type: float
 
 

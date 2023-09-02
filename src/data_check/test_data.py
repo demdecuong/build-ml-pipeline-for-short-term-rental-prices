@@ -1,22 +1,9 @@
-"""
-Module to conduct data check using pytest
-"""
-
 import pandas as pd
 import numpy as np
 import scipy.stats
 
 
 def test_column_names(data):
-    """
-    Function to check if column names in our dataset same as
-    our list of expected column names
-
-    argument:
-        data : pandas dataframe
-    return:
-        None
-    """
 
     expected_colums = [
         "id",
@@ -44,15 +31,6 @@ def test_column_names(data):
 
 
 def test_neighborhood_names(data):
-    """
-    Funtion to test if neighbourhood_group column, contain
-    the expected unique value
-
-    argument:
-        data : pandas dataframe
-    return:
-        None
-    """
 
     known_names = ["Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"]
 
@@ -66,16 +44,12 @@ def test_proper_boundaries(data: pd.DataFrame):
     """
     Test proper longitude and latitude boundaries for properties in and around NYC
     """
-    idx = data['longitude'].between(-74.25, - \
-                                    73.50) & data['latitude'].between(40.5, 41.2)
+    idx = data['longitude'].between(-74.25, -73.50) & data['latitude'].between(40.5, 41.2)
 
     assert np.sum(~idx) == 0
 
 
-def test_similar_neigh_distrib(
-        data: pd.DataFrame,
-        ref_data: pd.DataFrame,
-        kl_threshold: float):
+def test_similar_neigh_distrib(data: pd.DataFrame, ref_data: pd.DataFrame, kl_threshold: float):
     """
     Apply a threshold on the KL divergence to detect if the distribution of the new data is
     significantly different than that of the reference dataset
@@ -86,15 +60,18 @@ def test_similar_neigh_distrib(
     assert scipy.stats.entropy(dist1, dist2, base=2) < kl_threshold
 
 
-def test_row_count(data):
+########################################################
+# Implement here test_row_count and test_price_range   #
+########################################################
+
+def test_row_count(data: pd.DataFrame):
     """
-    Apply test to checks that the size of the dataset is reasonable (not too small, not too large).
+    Check if the dataset is composed by the correct number of rows
     """
     assert 15000 < data.shape[0] < 1000000
 
-
-def test_price_range(data, min_price, max_price):
+def test_price_range(data: pd.DataFrame, min_price: float, max_price: float):
     """
-    Apply test to check range of price value
+    Check if the price variable is between the correct range of values
     """
     assert data['price'].between(min_price, max_price).all()
