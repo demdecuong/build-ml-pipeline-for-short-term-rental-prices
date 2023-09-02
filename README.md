@@ -8,8 +8,14 @@ In this project we will build such a pipeline.
 
 ### Project Links
 ```
-Weights & Biases project link: https://wandb.ai/nicholas-dinicola/nyc_airbnb?workspace=user-nicholas-dinicola
-Github repository link: https://github.com/nicholas-dinicola/ML-pipeline-short-term-rental-prices-NYC
+Weights & Biases project link: https://wandb.ai/pavaso-poc/nyc_airbnb?workspace=user-demdecuong
+Github repository link: https://github.com/demdecuong/build-ml-pipeline-for-short-term-rental-prices/
+```
+
+### Error & Solution
+If you meet error about mlflow or hydra
+```
+export $(cat .env_copy)
 ```
 
 ## Table of contents
@@ -545,8 +551,8 @@ train the model on a new sample of data that our company received (``sample2.csv
 
 (be ready for a surprise, keep reading even if the command fails)
 ```bash
-> mlflow run https://github.com/[your github username]/nd0821-c2-build-model-workflow-starter.git \
-             -v [the version you want to use, like 1.0.0] \
+> mlflow run https://github.com/demdecuong/build-ml-pipeline-for-short-term-rental-prices \
+             -v 1.0.0 \
              -P hydra_options="etl.sample='sample2.csv'"
 ```
 
